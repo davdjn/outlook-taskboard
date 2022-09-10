@@ -24,10 +24,12 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
         $scope.general_config = GENERAL_CONFIG;
 
         // get tasks from each outlook folder and populate model data
+        $scope.tasksTasks = getTasksFromOutlook(GENERAL_CONFIG.TASKS_FOLDER.Name, GENERAL_CONFIG.TASKS_FOLDER.Restrict, GENERAL_CONFIG.TASKS_FOLDER.Sort, GENERAL_CONFIG.TASKS_FOLDER.Owner);
+        $scope.requestsTasks = getTasksFromOutlook(GENERAL_CONFIG.REQUESTS_FOLDER.Name, GENERAL_CONFIG.REQUESTS_FOLDER.Restrict, GENERAL_CONFIG.REQUESTS_FOLDER.Sort, GENERAL_CONFIG.REQUESTS_FOLDER.Owner);
         $scope.backlogTasks = getTasksFromOutlook(GENERAL_CONFIG.BACKLOG_FOLDER.Name, GENERAL_CONFIG.BACKLOG_FOLDER.Restrict, GENERAL_CONFIG.BACKLOG_FOLDER.Sort, GENERAL_CONFIG.BACKLOG_FOLDER.Owner);
         $scope.inprogressTasks = getTasksFromOutlook(GENERAL_CONFIG.INPROGRESS_FOLDER.Name, GENERAL_CONFIG.INPROGRESS_FOLDER.Restrict, GENERAL_CONFIG.INPROGRESS_FOLDER.Sort, GENERAL_CONFIG.INPROGRESS_FOLDER.Owner);
         $scope.nextTasks = getTasksFromOutlook(GENERAL_CONFIG.NEXT_FOLDER.Name, GENERAL_CONFIG.NEXT_FOLDER.Restrict, GENERAL_CONFIG.NEXT_FOLDER.Sort, GENERAL_CONFIG.NEXT_FOLDER.Owner);
-        $scope.focusTasks = getTasksFromOutlook(GENERAL_CONFIG.FOCUS_FOLDER.Name, GENERAL_CONFIG.FOCUS_FOLDER.Restrict, GENERAL_CONFIG.FOCUS_FOLDER.Sort, GENERAL_CONFIG.FOCUS_FOLDER.Owner);
+        $scope.emailsTasks = getTasksFromOutlook(GENERAL_CONFIG.EMAILS_FOLDER.Name, GENERAL_CONFIG.EMAILS_FOLDER.Restrict, GENERAL_CONFIG.EMAILS_FOLDER.Sort, GENERAL_CONFIG.EMAILS_FOLDER.Owner);
         $scope.waitingTasks = getTasksFromOutlook(GENERAL_CONFIG.WAITING_FOLDER.Name, GENERAL_CONFIG.WAITING_FOLDER.Restrict, GENERAL_CONFIG.WAITING_FOLDER.Sort, GENERAL_CONFIG.WAITING_FOLDER.Owner);
         $scope.completedTasks = getTasksFromOutlook(GENERAL_CONFIG.COMPLETED_FOLDER.Name, GENERAL_CONFIG.COMPLETED_FOLDER.Restrict, GENERAL_CONFIG.COMPLETED_FOLDER.Sort, GENERAL_CONFIG.COMPLETED_FOLDER.Owner);
 
@@ -44,7 +46,7 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
                         // but allows sorting within the lane
                         if ( (GENERAL_CONFIG.INPROGRESS_FOLDER.Limit !== 0 && e.target.id !== 'inprogressList' && ui.item.sortable.droptarget.attr('id') === 'inprogressList' && $scope.inprogressTasks.length >= GENERAL_CONFIG.INPROGRESS_FOLDER.Limit) ||
                              (GENERAL_CONFIG.NEXT_FOLDER.Limit !== 0 && e.target.id !== 'nextList' && ui.item.sortable.droptarget.attr('id') === 'nextList' && $scope.nextTasks.length >= GENERAL_CONFIG.NEXT_FOLDER.Limit) ||
-                             (GENERAL_CONFIG.FOCUS_FOLDER.Limit !== 0 && e.target.id !== 'focusList' && ui.item.sortable.droptarget.attr('id') === 'focusList' && $scope.focusTasks.length >= GENERAL_CONFIG.FOCUS_FOLDER.Limit) ||
+                             (GENERAL_CONFIG.EMAILS_FOLDER.Limit !== 0 && e.target.id !== 'emailsList' && ui.item.sortable.droptarget.attr('id') === 'emailsList' && $scope.emailsTasks.length >= GENERAL_CONFIG.EMAILS_FOLDER.Limit) ||
                              (GENERAL_CONFIG.WAITING_FOLDER.Limit !== 0 && e.target.id !== 'waitingList' && ui.item.sortable.droptarget.attr('id') === 'waitingList' && $scope.waitingTasks.length >= GENERAL_CONFIG.WAITING_FOLDER.Limit) ) {
                                 ui.item.sortable.cancel();
                         }
@@ -59,8 +61,13 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
                                         // locate the target folder in outlook
                                         // ui.item.sortable.droptarget[0].id represents the id of the target list
                                         switch (ui.item.sortable.droptarget[0].id) {
+                                            case 'tasksList':
+                                                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.TASKS_FOLDER.Name, GENERAL_CONFIG.TASKS_FOLDER.Owner);
+                                                    break;
+                                            case 'requestsList':
+                                                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.REQUESTS_FOLDER.Name, GENERAL_CONFIG.REQUESTS_FOLDER.Owner);
+                                                    break;
                                             case 'backlogList':
-                                                    //var tasksfolder = outlookNS.GetDefaultFolder(13);
                                                     var tasksfolder = getOutlookFolder(GENERAL_CONFIG.BACKLOG_FOLDER.Name, GENERAL_CONFIG.BACKLOG_FOLDER.Owner);
                                                     break;
                                             case 'inprogressList':
@@ -72,8 +79,8 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
                                             case 'waitingList':
                                                     var tasksfolder = getOutlookFolder(GENERAL_CONFIG.WAITING_FOLDER.Name, GENERAL_CONFIG.WAITING_FOLDER.Owner);
                                                     break;
-                                            case 'focusList':
-                                                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.FOCUS_FOLDER.Name, GENERAL_CONFIG.FOCUS_FOLDER.Owner);
+                                            case 'emailsList':
+                                                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.EMAILS_FOLDER.Name, GENERAL_CONFIG.EMAILS_FOLDER.Owner);
                                                     break;
                                             case 'completedList':
                                                     var tasksfolder = getOutlookFolder(GENERAL_CONFIG.COMPLETED_FOLDER.Name, GENERAL_CONFIG.COMPLETED_FOLDER.Owner);
@@ -186,134 +193,12 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
             return sortedTasks;
     };
 
-    // this is only a proof-of-concept single page report in a draft email for weekly report
-    // it will be improved later on
-    $scope.createReport = function () {
-            var i, array = [];
-            var mailItem, mailBody;
-            mailItem = outlookApp.CreateItem(0);
-            mailItem.Subject = "Status Report";
-            mailItem.BodyFormat = 2;
-
-            mailBody = "<style>";
-            mailBody += "body { font-family: Calibri; font-size:11.0pt; } ";
-            //mailBody += " h3 { font-size: 11pt; text-decoration: underline; } ";
-            mailBody += " </style>";
-            mailBody += "<body>";
-
-            // INPROGRESS ITEMS
-            var tasks = getOutlookFolder(GENERAL_CONFIG.INPROGRESS_FOLDER.Name, GENERAL_CONFIG.INPROGRESS_FOLDER.Owner).Items.Restrict("[Complete] = false And Not ([Sensitivity] = 2)");
-            tasks.Sort("[Importance][Status]", true);
-            mailBody += "<h3>" + GENERAL_CONFIG.INPROGRESS_FOLDER.Title + "</h3>";
-            mailBody += "<ul>";
-            var count = tasks.Count;
-            for (i = 1; i <= count; i++) {
-                mailBody += "<li>"
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>";
-                if ( tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
-                if ( tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
-                var dueDate = new Date(tasks(i).DueDate);
-                if ( moment(dueDate).isValid && moment(dueDate).year() != 4501 ) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if ( taskExcerpt(tasks(i).Body, 10000) ) { mailBody += " - <font color=gray><i>" + taskExcerpt(tasks(i).Body, 10000) + "</i></font>";}
-                mailBody += "<br>" + taskStatus(tasks(i).Body) + "";
-                mailBody += "</li>";
-            }
-            mailBody += "</ul>";
-
-            // FOCUS ITEMS
-             var tasks = getOutlookFolder(GENERAL_CONFIG.FOCUS_FOLDER.Name, GENERAL_CONFIG.FOCUS_FOLDER.Owner).Items.Restrict("[Complete] = false And Not ([Sensitivity] = 2)");
-            tasks.Sort("[Importance][Status]", true);
-            mailBody += "<h3>" + GENERAL_CONFIG.FOCUS_FOLDER.Title + "</h3>";
-            mailBody += "<ul>";
-            var count = tasks.Count;
-            for (i = 1; i <= count; i++) {
-                mailBody += "<li>"
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>";
-                if ( tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
-                if ( tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
-                var dueDate = new Date(tasks(i).DueDate);
-                if ( moment(dueDate).isValid && moment(dueDate).year() != 4501 ) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if ( taskExcerpt(tasks(i).Body, 10000) ) { mailBody += " - <font color=gray><i>" + taskExcerpt(tasks(i).Body, 10000) + "</i></font>";}
-                mailBody += "<br>" + taskStatus(tasks(i).Body) + "";
-                mailBody += "</li>";
-            }
-            mailBody += "</ul>";
-
-
-            // COMPLETED ITEMS
-            var tasks = getOutlookFolder(GENERAL_CONFIG.COMPLETED_FOLDER.Name, GENERAL_CONFIG.COMPLETED_FOLDER.Owner).Items.Restrict("[Complete] = false And Not ([Sensitivity] = 2)");
-            tasks.Sort("[Importance][Status]", true);
-            mailBody += "<h3>" + GENERAL_CONFIG.COMPLETED_FOLDER.Title + "</h3>";
-            mailBody += "<ul>";
-            var count = tasks.Count;
-            for (i = 1; i <= count; i++) {
-                mailBody += "<li>"
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>";
-                if ( tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
-                if ( tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
-                var dueDate = new Date(tasks(i).DueDate);
-                if ( moment(dueDate).isValid && moment(dueDate).year() != 4501 ) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if ( taskExcerpt(tasks(i).Body, 10000) ) { mailBody += " - <font color=gray><i>" + taskExcerpt(tasks(i).Body, 10000) + "</i></font>";}
-                mailBody += "<br>" + taskStatus(tasks(i).Body) + "";
-                mailBody += "</li>";
-            }
-            mailBody += "</ul>";
-
-            // WAITING ITEMS
-            var tasks = getOutlookFolder(GENERAL_CONFIG.WAITING_FOLDER.Name, GENERAL_CONFIG.WAITING_FOLDER.Owner).Items.Restrict("[Complete] = false And Not ([Sensitivity] = 2)");
-            tasks.Sort("[Importance][Status]", true);
-            mailBody += "<h3>" + GENERAL_CONFIG.WAITING_FOLDER.Title + "</h3>";
-            mailBody += "<ul>";
-            var count = tasks.Count;
-            for (i = 1; i <= count; i++) {
-                mailBody += "<li>"
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>";
-                if ( tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
-                if ( tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
-                var dueDate = new Date(tasks(i).DueDate);
-                if ( moment(dueDate).isValid && moment(dueDate).year() != 4501 ) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if ( taskExcerpt(tasks(i).Body, 10000) ) { mailBody += " - <font color=gray><i>" + taskExcerpt(tasks(i).Body, 10000) + "</i></font>";}
-                mailBody += "<br>" + taskStatus(tasks(i).Body) + "";
-                mailBody += "</li>";
-            }
-            mailBody += "</ul>";
-
-            // BACKLOG ITEMS
-            var tasks = getOutlookFolder(GENERAL_CONFIG.BACKLOG_FOLDER.Name, GENERAL_CONFIG.BACKLOG_FOLDER.Owner).Items.Restrict("[Complete] = false And Not ([Sensitivity] = 2)");
-            tasks.Sort("[Importance][Status]", true);
-            mailBody += "<h3>" + GENERAL_CONFIG.BACKLOG_FOLDER.Title + "</h3>";
-            mailBody += "<ul>";
-            var count = tasks.Count;
-            for (i = 1; i <= count; i++) {
-                mailBody += "<li>"
-                mailBody += "<strong>" + tasks(i).Subject + "</strong>";
-                if ( tasks(i).Importance == 2) { mailBody += "<font color=red> [H]</font>"; }
-                if ( tasks(i).Importance == 0) { mailBody += "<font color=gray> [L]</font>"; }
-                var dueDate = new Date(tasks(i).DueDate);
-                if ( moment(dueDate).isValid && moment(dueDate).year() != 4501 ) { mailBody += " [Due: " + moment(dueDate).format("DD-MMM") + "]"; }
-                if ( taskExcerpt(tasks(i).Body, 10000) ) { mailBody += " - <font color=gray><i>" + taskExcerpt(tasks(i).Body, 10000) + "</i></font>";}
-                mailBody += "<br>" + taskStatus(tasks(i).Body) + "";
-                mailBody += "</li>";
-            }
-            mailBody += "</ul>";
-
-
-            mailBody += "</body>"
-
-            // include report content to the mail body
-            mailItem.HTMLBody = mailBody;
-
-            // only display the draft email
-            mailItem.Display();
-
-    }
-
     // grabs the summary part of the task until the first '###' text
     // shortens the string by number of chars
     // tries not to split words and adds ... at the end to give excerpt effect
     var taskExcerpt = function (str, limit) {
             if ( str.indexOf('\r\n### ') > 0 ) {
-                str = str.substring( 0, str.indexOf('\r\n###'));
+                str = str.substring( 0, str.indexOf('\r\n'));
             }
             // remove empty lines
             str = str.replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, '');
@@ -354,6 +239,12 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
     $scope.addTask = function(target) {
         // set the parent folder to target defined
         switch (target) {
+            case 'tasks':
+                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.TASKS_FOLDER.Name, GENERAL_CONFIG.TASKS_FOLDER.Owner);
+                    break;
+            case 'requests':
+                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.REQUESTS_FOLDER.Name, GENERAL_CONFIG.REQUESTS_FOLDER.Owner);
+                    break;
             case 'backlog':
                     var tasksfolder = getOutlookFolder(GENERAL_CONFIG.BACKLOG_FOLDER.Name, GENERAL_CONFIG.BACKLOG_FOLDER.Owner);
                     break;
@@ -366,8 +257,8 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
             case 'waiting':
                     var tasksfolder = getOutlookFolder(GENERAL_CONFIG.WAITING_FOLDER.Name, GENERAL_CONFIG.WAITING_FOLDER.Owner);
                     break;
-            case 'focus':
-                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.FOCUS_FOLDER.Name, GENERAL_CONFIG.FOCUS_FOLDER.Owner);
+            case 'emails':
+                    var tasksfolder = getOutlookFolder(GENERAL_CONFIG.EMAILS_FOLDER.Name, GENERAL_CONFIG.EMAILS_FOLDER.Owner);
                     break;
         };
         // create a new task item object in outlook
@@ -396,15 +287,12 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
 
     // deletes the task item in both outlook and model data
     $scope.deleteTask = function(item, sourceArray){
-        if ( window.confirm('Are you absolutely sure you want to delete this item?') ) {
-            // locate and delete the outlook task
-            var taskitem = outlookNS.GetItemFromID(item.entryID);
-            taskitem.Delete();
+        var taskitem = outlookNS.GetItemFromID(item.entryID);
+        taskitem.Delete();
 
-            // locate and remove the item from the array
-            var index = sourceArray.indexOf(item);
-            sourceArray.splice(index, 1);
-        };
+        // locate and remove the item from the array
+        var index = sourceArray.indexOf(item);
+        sourceArray.splice(index, 1);
     };
 
     // moves the task item back to tasks folder and marks it as complete
@@ -450,7 +338,5 @@ tbApp.controller('taskboardController', function ($scope, GENERAL_CONFIG) {
         }
         return false;
     }
-
-
 });
 

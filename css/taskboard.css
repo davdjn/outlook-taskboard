@@ -20,20 +20,20 @@ body {
 }
 
 .panel-body {
-    padding: 10px;
+    padding: 5px;
     word-wrap: break-word;
 }
 
 #filterbar {
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #filterbar .btn-default, .task .btn-default  { background: transparent; border: none;}
 
 .tasklane header h5 {
-    margin-top:  5px;
-    margin-bottom: 10px;
+    margin-top:  0px;
+    margin-bottom: 5px;
     font-weight: 700;
     color: #555;
 }
@@ -45,7 +45,7 @@ body {
 
 li.task {
     padding: 0;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 li.task header {
@@ -65,18 +65,20 @@ li.task.task-medium {
     border: 1px solid #ccc;
 }
 
+/*
 li.task.task-private {
     background-color: #FFFFE2;
     border: 1px solid #e6d396;
 }
+*/
 
 li.task.task-high {
-    background-color: #FFDDDD;
-    border: 1px solid #FFA8A8;
+    /*background-color: #FFDDDD;*/
+    border: 3px solid #FFA8A8;
 }
 
 li.task.task-low {
-    background-color: #f5f5f5;
+    /*background-color: #f5f5f5;*/
     border: 1px solid #ccc;
 }
 
@@ -84,17 +86,3 @@ li.task.task-completed {
     background-color: #ddd;
     border: 1px solid #bbb;
 }
-
-/* blue
-header: #BBDAFF;
-body: #DBEBFF;
-border: #A8CFFF;
-*/
-
-
-/* cyan
-header: #A5D3CA;
-body: #CFE7E2;
-border: #8DC7BB  ;
-*/
-
