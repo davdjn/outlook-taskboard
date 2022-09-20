@@ -66,12 +66,10 @@ li.task.task-medium {
     border: 1px solid #ccc;
 }
 
-/*
 li.task.task-private {
-    background-color: #FFFFE2;
-    border: 1px solid #e6d396;
+    background-color: #fff;
+    border: 3px solid #94b5db;
 }
-*/
 
 li.task.task-high {
     /*background-color: #FFDDDD;*/
