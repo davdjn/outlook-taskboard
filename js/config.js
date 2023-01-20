@@ -11,10 +11,10 @@ var config_data = {
     // Sort: Sort order for tasks (default = priority), can state multiple sort keys separated by comma, use '-' to sort descending, Example "duedate,-priority,subject"
     // Restrict: Restrict certain tasks (default = only show incomplete tasks) (More info = https://msdn.microsoft.com/en-us/library/office/ff869597.aspx)
     // Owner: If the task folder is shared by someone else, enter the name of the owner. (i.e. Evren Varol)
-    'REQUESTS_FOLDER': 		{ Name: 'RequestsInfo', Title: 'INFO / REQUESTS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
-    'EMAILS_FOLDER': 		{ Name: 'OpenEmails', Title: 'EMAILS / FOLLOW-UPS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
+    'REQUESTS_FOLDER': 		{ Name: 'RequestsInfo', Title: 'QUESTIONS & REQUESTS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
+    'EMAILS_FOLDER': 		{ Name: 'OpenEmails', Title: 'OPEN EMAILS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
     'TASKS_FOLDER':       { Name: 'OpenTasks', Title: 'OPEN TASKS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
-    'WAITING_FOLDER': 		{ Name: 'Waiting', Title: 'WAITING / BLOCKED', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
+    'WAITING_FOLDER': 		{ Name: 'Waiting', Title: 'LATER', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' },
     'BACKLOG_FOLDER': 			{ Name: '', Title: 'BACKLOG', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: ''},
     'INPROGRESS_FOLDER': 	{ Name: 'InProgress', Title: 'IN PROGRESS', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: '' }, 
     'NEXT_FOLDER': 	{ Name: 'ToDo', Title: 'TO DO', Limit: 0, Sort: "duedate,-priority", Restrict: "[Complete] = false", Owner: ''},
