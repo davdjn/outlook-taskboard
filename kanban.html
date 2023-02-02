@@ -41,36 +41,6 @@
         <!-- tasklanes section, row 1 -->
         <section class="row">
 
-            <!-- waiting -->
-            <div class="tasklane col-sm-3 col-md-3 col-lg-3">
-                <div class="panel panel-default">
-                    <header class="panel-heading">
-                        <h5>{{ general_config.WAITING_FOLDER.Title }}
-                            <span class="pull-right">
-                                <button class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('waiting');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>                                
-                            </span>
-                        </h5>
-                    </header>
-                    <ul id="waitingList" ui-sortable="sortableOptions" ng-model="waitingTasks" class="panel-body tasklist list-unstyled">
-                        <li ng-repeat="task in waitingTasks | filter:search" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }" ng-dblclick="editTask(task)">
-                            <header class="panel-heading">
-                                {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">{{ task.duedate | date:'MM/dd/yy' }}</span>
-                            </header>
-                            
-                            <footer class="text-right">
-                                <div ng-if="(task.categories != '')" class="pull-left small"><span class="glyphicon glyphicon-tag"></span> {{ task.categories }} &nbsp; &nbsp;</div>
-                                <div ng-if="(task.notes.substring(0,12) == '------------')" class="pull-left"><span class="glyphicon glyphicon-envelope"></span></div>
-                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>
-                                <span class="btn-group btn-group-xs">                                    
-                                    <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,waitingTasks)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                                </span>
-                            </footer>
-                        </li>
-                    </ul>
-                </div>
-            </div> <!-- waiting -->
-
             <!-- backlog -->
             <div class="tasklane col-sm-3 col-md-3 col-lg-3">
                 <div class="panel panel-default">
@@ -161,23 +131,50 @@
                 </div>
             </div> <!-- in progress -->
 
+            <!-- completed -->
+            <div class="tasklane col-sm-3 col-md-3 col-lg-3">
+                <div class="panel panel-default">
+                    <header class="panel-heading">
+                        <h5>{{ general_config.COMPLETED_FOLDER.Title }}
+                        </h5>
+                    </header>
+                    <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" class="panel-body tasklist list-unstyled">
+                        <li ng-repeat="task in completedTasks | filter:search" class="task panel task-completed" ng-dblclick="editTask(task)">
+                            <header class="panel-heading">
+                                {{ task.subject }}
+                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" class="pull-right">(Due: {{ task.duedate | date:'MM/dd/yy' }}) </span>
+                            </header>
+                            
+                            <footer class="text-right">
+                                <div ng-if="(task.categories != '')" class="pull-left small"><span class="glyphicon glyphicon-tag"></span> {{ task.categories }} &nbsp; &nbsp;</div>
+                                <div ng-if="(task.notes.substring(0,12) == '------------')" class="pull-left"><span class="glyphicon glyphicon-envelope"></span></div>
+                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>
+                                <span class="btn-group btn-group-xs">
+                                    <button class="btn btn-default btn-xs" aria-label="Archive" type="button" ng-click="archiveTask(task,completedTasks)"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></button>                           
+                                </span>
+                            </footer>
+                        </li>
+                    </ul>
+                </div>
+            </div> <!-- completed -->
+
         </section> <!-- tasklanes section, row 1 -->
 
         <!-- tasklanes section, row 2 -->
         <section class="row">
 
-            <!-- emails -->
+            <!-- waiting -->
             <div class="tasklane col-sm-3 col-md-3 col-lg-3">
                 <div class="panel panel-default">
                     <header class="panel-heading">
-                        <h5>{{ general_config.EMAILS_FOLDER.Title }}
+                        <h5>{{ general_config.WAITING_FOLDER.Title }}
                             <span class="pull-right">
-                                <button class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('emails');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>                                
+                                <button class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('waiting');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>                                
                             </span>
                         </h5>
                     </header>
-                    <ul id="emailsList" ui-sortable="sortableOptions" ng-model="emailsTasks" class="panel-body tasklist list-unstyled">
-                        <li ng-repeat="task in emailsTasks | filter:search" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }" ng-dblclick="editTask(task)">
+                    <ul id="waitingList" ui-sortable="sortableOptions" ng-model="waitingTasks" class="panel-body tasklist list-unstyled">
+                        <li ng-repeat="task in waitingTasks | filter:search" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }" ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
                                 <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">{{ task.duedate | date:'MM/dd/yy' }}</span>
@@ -186,15 +183,15 @@
                             <footer class="text-right">
                                 <div ng-if="(task.categories != '')" class="pull-left small"><span class="glyphicon glyphicon-tag"></span> {{ task.categories }} &nbsp; &nbsp;</div>
                                 <div ng-if="(task.notes.substring(0,12) == '------------')" class="pull-left"><span class="glyphicon glyphicon-envelope"></span></div>
-                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>                                
+                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>
                                 <span class="btn-group btn-group-xs">                                    
-                                    <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,emailsTasks)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                                    <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,waitingTasks)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                                 </span>
                             </footer>
                         </li>
                     </ul>
                 </div>
-            </div> <!-- emails -->
+            </div> <!-- waiting -->
 
             <!-- requests -->
             <div class="tasklane col-sm-3 col-md-3 col-lg-3">
@@ -256,32 +253,35 @@
                 </div>
             </div> <!-- tasks -->
 
-            <!-- completed -->
+            <!-- emails -->
             <div class="tasklane col-sm-3 col-md-3 col-lg-3">
                 <div class="panel panel-default">
                     <header class="panel-heading">
-                        <h5>{{ general_config.COMPLETED_FOLDER.Title }}
+                        <h5>{{ general_config.EMAILS_FOLDER.Title }}
+                            <span class="pull-right">
+                                <button class="btn btn-default btn-xs" aria-label="Add" type="button" ng-click="addTask('emails');"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>                                
+                            </span>
                         </h5>
                     </header>
-                    <ul id="completedList" ui-sortable="sortableOptions" ng-model="completedTasks" class="panel-body tasklist list-unstyled">
-                        <li ng-repeat="task in completedTasks | filter:search" class="task panel task-completed" ng-dblclick="editTask(task)">
+                    <ul id="emailsList" ui-sortable="sortableOptions" ng-model="emailsTasks" class="panel-body tasklist list-unstyled">
+                        <li ng-repeat="task in emailsTasks | filter:search" class="task panel" ng-class=" { 'task-low' : task.priority === 0, 'task-medium' : task.priority === 1, 'task-high' : task.priority === 2, 'task-private': task.sensitivity === 2 }" ng-dblclick="editTask(task)">
                             <header class="panel-heading">
                                 {{ task.subject }}
-                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" class="pull-right">(Due: {{ task.duedate | date:'MM/dd/yy' }}) </span>
+                                <span ng-show="(task.duedate | date:'yyyy' ) != '4501'" ng-class="isOverdue(task.duedate)" class="pull-right">{{ task.duedate | date:'MM/dd/yy' }}</span>
                             </header>
                             
                             <footer class="text-right">
                                 <div ng-if="(task.categories != '')" class="pull-left small"><span class="glyphicon glyphicon-tag"></span> {{ task.categories }} &nbsp; &nbsp;</div>
                                 <div ng-if="(task.notes.substring(0,12) == '------------')" class="pull-left"><span class="glyphicon glyphicon-envelope"></span></div>
-                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>
-                                <span class="btn-group btn-group-xs">
-                                    <button class="btn btn-default btn-xs" aria-label="Archive" type="button" ng-click="archiveTask(task,completedTasks)"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></button>                           
+                                <div ng-if="(task.notes != '' && task.notes.substring(0,12) != '------------')" class="pull-left"><span class="glyphicon glyphicon-align-left"></span></div>                                
+                                <span class="btn-group btn-group-xs">                                    
+                                    <button class="btn btn-default btn-xs" aria-label="Delete" type="button" ng-click="deleteTask(task,emailsTasks)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                                 </span>
                             </footer>
                         </li>
                     </ul>
                 </div>
-            </div> <!-- completed -->
+            </div> <!-- emails -->
 
         </section> <!-- tasklanes section, row 2 -->
     </div>
